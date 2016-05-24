@@ -1,7 +1,7 @@
 import groovy.json.JsonSlurper
 
 
-def coreBuild (cl){
+def coreBuild(cl) {
     Map buildDefs = initBuildModuleDefinition();
 
 
@@ -20,7 +20,7 @@ def coreBuild (cl){
             scmUrl = buildDefs.get(moduleName);
             //git branch: moduleBranch, url: scmUrl
             //mvn
-            dir('module_'+moduleName) {
+            dir('module_' + moduleName) {
                 echo "Checking out ${moduleName}"
                 git branch: moduleBranch, url: scmUrl
 
@@ -33,7 +33,7 @@ def coreBuild (cl){
     parallel modulesToBuild
 }
 
-def deploy(host){
+def deploy(host) {
     Map hostsDef = initHostsDefinition();
     println hostsDef.get(host);
 }
@@ -74,6 +74,49 @@ def initHostsDefinition() {
 @NonCPS
 List<List<Object>> get_map_entries(map) {
     map.collect { k, v -> [k, v] }
+}
+
+
+def gav() {
+
+    String pom = readFile('pom.xml')
+    def vMatcher = (pom =~ '<version>(.+)</version>')
+    version = vMatcher ? vMatcher[0][1] : null
+    println version
+
+    def gMatcher = (pom =~ '<groupId>(.+)</groupId>')
+    group = gMatcher ? gMatcher[0][1] : null
+    println group
+
+    def aMatcher = (pom =~ '<artifactId>(.+)</artifactId>')
+    artifact = aMatcher ? aMatcher[0][1] : null
+    println artifact
+
+    [group: group, artifact: artifact, version: version]
+}
+
+
+def staticAnalysis() {
+    step([$class: 'ArtifactArchiver', artifacts: 'gameoflife-web/target/*.war'])
+    step([$class: 'WarningsPublisher', consoleParsers: [[parserName: 'Maven']]])
+    step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
+    step([$class: 'JavadocArchiver', javadocDir: 'gameoflife-core/target/site/apidocs/'])
+
+    step([$class: 'hudson.plugins.checkstyle.CheckStylePublisher', pattern: '**/target/checkstyle-result.xml'])
+    step([$class: 'FindBugsPublisher', pattern: '**/findbugsXml.xml'])
+    step([$class: 'AnalysisPublisher'])
+}
+
+
+def gitNotifier() {
+    stage 'Notify'
+    step([$class: 'GitHubSetCommitStatusBuilder', statusMessage: [content: 'pending']])
+    try {
+        sh "${mvnHome}/bin/mvn clean install"
+        step([$class: 'GitHubSetCommitStatusBuilder', statusMessage: [content: 'success']])
+    } catch (Exception e) {
+        step([$class: 'GitHubSetCommitStatusBuilder', statusMessage: [content: 'failure']])
+    }
 }
 
 return this;
