@@ -15,8 +15,12 @@ def coreBuild (cl){
         modulesToBuild["moduleName_" + moduleName] = {
 
             scmUrl = buildDefs.get(moduleName);
-            git branch: moduleBranch, url: scmUrl
+            //git branch: moduleBranch, url: scmUrl
             //mvn
+
+            dir('module_'+moduleName) {
+                git branch: moduleBranch, url: scmUrl
+            }
         }
     }
 
