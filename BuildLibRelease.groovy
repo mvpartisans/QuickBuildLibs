@@ -63,7 +63,7 @@ def initHostsDefinition() {
 
     //return (Map) jsonResp;
     Map hostsDef = [
-            "hos1": "np1.corelogic",
+            "host1": "np1.corelogic",
             "host2": "np2.corelogic",
             "host3": "np2.corelogic",
     ]
