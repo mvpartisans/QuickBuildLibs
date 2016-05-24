@@ -13,7 +13,11 @@ def coreBuild (cl){
 
         scmUrl = buildDefs.get(moduleName);
         //git branch: 'May-Release', url: 'https://github.com/mvpartisans/pipeline-as-code-demo/'
-        git branch: moduleBranch, url: scmUrl
+
+        dir('dir_'+moduleName) {
+            git branch: moduleBranch, url: scmUrl
+        }
+
         //mvn
     }
 
