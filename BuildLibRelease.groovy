@@ -1,9 +1,10 @@
 import groovy.json.JsonSlurper
 
+Map hostsDef = initHostsDefinition();
 
 def coreBuild (cl){
     Map buildDefs = initBuildModuleDefinition();
-    Map hostsDef = initHostsDefinition();
+
 
     Map coreBuildMap = cl();
     def modulesToBuild = [:]
