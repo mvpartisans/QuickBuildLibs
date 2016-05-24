@@ -36,7 +36,7 @@ def initBuildModuleDefinition() {
     //return (Map) jsonResp;
     Map buildDef = [
             "lfs-a": "https://github.com/mvpartisans/pipeline-as-code-demo",
-            "lfs-b": "https://github.com/jglick/simple-maven-project-with-tests.git",
+            "lfs-b": "https://github.com/mvpartisans/simple-maven-project-with-tests",
             "lfs-c": "https://github.com/kishorebhatia/pipeline-as-code-demo",
             "lfs-d": "https://github.com/kishorebhatia/pipeline-as-code-demo"
     ]
