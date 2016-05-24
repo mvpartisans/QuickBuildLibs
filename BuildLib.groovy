@@ -6,6 +6,7 @@ def coreBuild (cl){
 
     Map coreBuildMap = cl();
     def modulesToBuild = [:]
+    def mvnHome = tool 'M3'
 
     def entries = get_map_entries(coreBuildMap)
     for (int i = 0; i < entries.size(); i++) {
@@ -20,6 +21,9 @@ def coreBuild (cl){
 
             dir('module_'+moduleName) {
                 git branch: moduleBranch, url: scmUrl
+
+                // Run the maven build
+                sh "${mvnHome}/bin/mvn clean install"
             }
         }
     }
