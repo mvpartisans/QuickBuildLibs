@@ -8,6 +8,7 @@ def coreBuild (cl){
     def modulesToBuild = [:]
     def mvnHome = tool 'M3'
 
+    stage 'Build'
     def entries = get_map_entries(coreBuildMap)
     for (int i = 0; i < entries.size(); i++) {
         String moduleName = entries[i][0]
@@ -18,8 +19,6 @@ def coreBuild (cl){
             scmUrl = buildDefs.get(moduleName);
             //git branch: moduleBranch, url: scmUrl
             //mvn
-
-            stage 'Build'
             dir('module_'+moduleName) {
                 echo "Checking out ${moduleName}"
                 git branch: moduleBranch, url: scmUrl
