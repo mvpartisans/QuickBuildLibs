@@ -13,16 +13,18 @@ def coreBuild (cl){
         String moduleName = entries[i][0]
         String moduleBranch = entries[i][1]
 
-        modulesToBuild["moduleName_" + moduleName] = {
+        modulesToBuild["ModuleName_" + moduleName] = {
 
             scmUrl = buildDefs.get(moduleName);
             //git branch: moduleBranch, url: scmUrl
             //mvn
 
+            stage 'Build'
             dir('module_'+moduleName) {
+                echo "Checking out ${moduleName}"
                 git branch: moduleBranch, url: scmUrl
 
-                // Run the maven build
+                echo "Runing maven build for ${moduleName}"
                 sh "${mvnHome}/bin/mvn clean install"
             }
         }
