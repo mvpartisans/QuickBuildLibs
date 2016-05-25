@@ -26,6 +26,7 @@ def coreBuild(cl) {
 
                 echo "Runing maven build for ${moduleName}"
                 sh "${mvnHome}/bin/mvn clean install"
+                //stash incude:"*.jar, *.war" name:'${moduleName}-buildArtifact'
             }
         }
     }
@@ -77,7 +78,7 @@ List<List<Object>> get_map_entries(map) {
 }
 
 
-def gav() {
+def getGav() {
 
     String pom = readFile('pom.xml')
     def vMatcher = (pom =~ '<version>(.+)</version>')
@@ -92,7 +93,8 @@ def gav() {
     artifact = aMatcher ? aMatcher[0][1] : null
     println artifact
 
-    [group: group, artifact: artifact, version: version]
+    //[group: group, artifact: artifact, version: version]
+    "${group}:${artifact}:${version}"
 }
 
 
@@ -116,6 +118,32 @@ def gitNotifier() {
         step([$class: 'GitHubSetCommitStatusBuilder', statusMessage: [content: 'success']])
     } catch (Exception e) {
         step([$class: 'GitHubSetCommitStatusBuilder', statusMessage: [content: 'failure']])
+    }
+}
+
+def buildWithGradle(goals){
+    //clean build test publish
+    sh """
+        ./gradlew --gradle-user-home=${pwd()}/.gradle ${goals}
+        """
+}
+
+def paralellTests() {
+    parallel(Functional: {
+        //runTests(30)
+        node ('windows'){
+            unstash 'build-artifacts'
+            deploy('func-test');
+            runCapybara('func-test');
+        }
+    }, Peformance: {
+        runTests(20)
+    })
+}
+
+def runTests(duration) {
+    node {
+        sh "sleep ${duration}"
     }
 }
 
